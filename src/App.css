@@ -7,7 +7,7 @@
 
 .app canvas {
   position: fixed;
-  inset: 0;y
+  inset: 0;
   pointer-events: none;
 }
 
