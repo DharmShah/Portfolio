@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, Sky, Sparkles } from "@react-three/drei";
+import {
+  Float,
+  Scroll,
+  ScrollControls,
+  Sky,
+  Sparkles,
+  useScroll,
+} from "@react-three/drei";
 import {
   FaArrowUp,
   FaBriefcase,
@@ -358,11 +365,12 @@ function CloudBank() {
   );
 }
 
-function MountainWorld({ scrollProgressRef }) {
+function MountainWorld() {
+  const scroll = useScroll();
   const rig = useRef(null);
   const drift = useRef(null);
   const targetYaw = useRef(0);
-  const { camera, size } = useThree();
+  const { camera, gl, size } = useThree();
 
   useEffect(() => {
     const handleWheel = (event) => {
@@ -378,15 +386,15 @@ function MountainWorld({ scrollProgressRef }) {
       targetYaw.current += clamp(dominantDelta * 0.0035, -0.55, 0.55);
     };
 
-    window.addEventListener("wheel", handleWheel, { passive: true });
+    gl.domElement.addEventListener("wheel", handleWheel, { passive: true });
 
     return () => {
-      window.removeEventListener("wheel", handleWheel);
+      gl.domElement.removeEventListener("wheel", handleWheel);
     };
-  }, []);
+  }, [gl]);
 
   useFrame((state, delta) => {
-    const progress = scrollProgressRef.current;
+    const progress = scroll.offset;
     const introProgress = smoothstep(0, 0.22, progress);
     const revealProgress = smoothstep(0.12, 0.95, progress);
     const cinematicSpin = progress * Math.PI * 1.75;
@@ -517,27 +525,6 @@ function MountainWorld({ scrollProgressRef }) {
 }
 
 function App() {
-  const scrollProgressRef = useRef(0);
-
-  useEffect(() => {
-    const updateScrollProgress = () => {
-      const maxScroll = Math.max(
-        document.documentElement.scrollHeight - window.innerHeight,
-        1,
-      );
-      scrollProgressRef.current = clamp(window.scrollY / maxScroll, 0, 1);
-    };
-
-    updateScrollProgress();
-    window.addEventListener("scroll", updateScrollProgress, { passive: true });
-    window.addEventListener("resize", updateScrollProgress);
-
-    return () => {
-      window.removeEventListener("scroll", updateScrollProgress);
-      window.removeEventListener("resize", updateScrollProgress);
-    };
-  }, []);
-
   const scrollToSection = (sectionId, block = "start") => {
     const target = document.getElementById(sectionId);
 
@@ -560,10 +547,10 @@ function App() {
         shadows
       >
         <color attach="background" args={["#d3dee7"]} />
-        <MountainWorld scrollProgressRef={scrollProgressRef} />
-      </Canvas>
-
-      <div className="scroll-root">
+        <ScrollControls pages={11.5} damping={0.14}>
+          <MountainWorld />
+          <Scroll html>
+            <div className="scroll-root">
               <section className="panel hero" id="top">
                 <div className="hero-grid">
                   <div className="hero-copy">
@@ -590,7 +577,7 @@ function App() {
                       <button
                         className="cta ghost"
                         type="button"
-                        onClick={() => scrollToSection("contact", "start")}
+                        onClick={() => scrollToSection("contact", "center")}
                       >
                         Contact Details
                       </button>
@@ -811,7 +798,10 @@ function App() {
                   </div>
                 </div>
               </section>
-      </div>
+            </div>
+          </Scroll>
+        </ScrollControls>
+      </Canvas>
     </div>
   );
 }

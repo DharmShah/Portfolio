@@ -23,7 +23,7 @@ html,
 body,
 #root {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
 }
 
 body {
@@ -43,9 +43,7 @@ body {
     ),
     linear-gradient(180deg, #dde6eb 0%, #ccd9dd 36%, #c2c8b7 62%, #e6dcc8 100%);
   color: var(--text-primary);
-  overflow-x: hidden;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  overflow: hidden;
 }
 
 body::before {

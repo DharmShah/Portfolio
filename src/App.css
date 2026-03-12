@@ -1,22 +1,19 @@
 .app {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .app canvas {
   position: fixed;
   inset: 0;
-  pointer-events: none;
 }
 
 .scroll-root {
-  position: relative;
-  z-index: 1;
   width: 100%;
   color: var(--text-primary);
-  padding-bottom: 24vh;
+  padding-bottom: 42vh;
 }
 
 .panel {
@@ -30,13 +27,9 @@
 .panel.footer {
   min-height: auto;
   align-items: start;
-  padding-top: clamp(48px, 10vh, 120px);
-  padding-bottom: clamp(160px, 28vh, 320px);
+  padding-top: clamp(48px, 8vh, 120px);
+  padding-bottom: clamp(160px, 30vh, 360px);
   scroll-margin-top: 8vh;
-}
-
-.panel.footer .panel-inner {
-  width: min(1160px, 100%);
 }
 
 .panel-inner,
@@ -234,31 +227,6 @@
   grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.82fr);
   gap: 28px;
   align-items: start;
-}
-
-.theme-panel {
-  display: grid;
-  gap: 28px;
-}
-
-.theme-copy {
-  max-width: 760px;
-}
-
-.theme-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.theme-card {
-  min-height: 100%;
-  align-content: start;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 251, 245, 0.72),
-    rgba(239, 233, 220, 0.6)
-  );
 }
 
 .section-title {
@@ -477,10 +445,6 @@
 @media (max-width: 980px) {
   .hero-grid,
   .split-panel {
-    grid-template-columns: 1fr;
-  }
-
-  .theme-grid {
     grid-template-columns: 1fr;
   }
 
