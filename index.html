@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en"
+  class="bg-bg0 motion-reduce:scroll-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#333] [&::-webkit-scrollbar-thumb]:rounded-md">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dharm Gautam Shah — Generative AI Engineer</title>
+  <meta name="description"
+    content="Dharm Gautam Shah — Generative AI Engineer & Full-Stack AI Developer. LLMs, RAG, Agents, MCP.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind (prototype-only Play CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Lenis smooth scroll -->
+  <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+
+  <!-- Tailwind theme tokens (Tailwind v4 config mechanism — not hand-written CSS) -->
+  <style type="text/tailwindcss">
+    @theme {
+  --color-bg0: #030303;
+  --color-bg1: #070708;
+  --color-bg2: #0b0b0d;
+  --color-panel: #0e0e11;
+  --color-line: rgba(255,255,255,0.08);
+  --color-linesoft: rgba(255,255,255,0.045);
+  --color-ink: #ececef;
+  --color-inkdim: #8c8c94;
+  --color-inkfaint: #4f4f57;
+  --color-blue: #5b9dff;
+  --color-bluedim: rgba(91,157,255,0.14);
+  --color-amber: #ff9a52;
+  --color-amberdim: rgba(255,154,82,0.14);
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+</style>
+</head>
+
+<body
+  class="bg-bg0 text-ink font-body overflow-x-hidden cursor-none max-[900px]:cursor-auto selection:bg-blue selection:text-black">
+
+  <!-- ============ CUSTOM CURSOR ============ -->
+  <div id="cursor-dot"
+    class="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full -translate-x-1/2 -translate-y-1/2 will-change-transform w-1.5 h-1.5 bg-white max-[900px]:hidden">
+  </div>
+  <div id="cursor-ring"
+    class="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full -translate-x-1/2 -translate-y-1/2 will-change-transform w-[34px] h-[34px] border border-white/35 transition-[width,height,border-color,background] duration-[250ms] ease-in-out flex items-center justify-center font-mono text-[8px] tracking-[.1em] text-ink max-[900px]:hidden">
+  </div>
+
+  <!-- ============ AMBIENT LAYERS ============ -->
+  <canvas id="particle-canvas" class="fixed inset-0 z-0 pointer-events-none opacity-60"></canvas>
+  <div
+    class="fixed inset-0 z-[1] pointer-events-none bg-[radial-gradient(circle_at_50%_20%,rgba(91,157,255,0.05),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(255,154,82,0.04),transparent_50%)]">
+  </div>
+
+  <!-- ============ SCROLL PROGRESS RAIL ============ -->
+  <div id="scroll-rail"
+    class="fixed right-[28px] top-1/2 -translate-y-1/2 z-[60] flex flex-col items-center gap-0 max-[900px]:hidden">
+    <div class="rail-item group active relative flex flex-col items-center" data-target="hero"><span
+        class="rail-label absolute right-6 font-mono text-[9px] tracking-[.1em] text-inkdim whitespace-nowrap opacity-0 translate-x-1.5 transition-all duration-300 group-[.active]:opacity-100 group-[.active]:translate-x-0">01
+        / IDENTITY</span><span
+        class="rail-dot active w-1.5 h-1.5 rounded-full bg-inkfaint transition-all duration-300 [&.active]:bg-blue [&.active]:shadow-[0_0_8px_#5b9dff]"></span>
+    </div>
+    <div class="rail-line w-px h-[26px] bg-line"></div>
+    <div class="rail-item group relative flex flex-col items-center" data-target="architecture"><span
+        class="rail-label absolute right-6 font-mono text-[9px] tracking-[.1em] text-inkdim whitespace-nowrap opacity-0 translate-x-1.5 transition-all duration-300 group-[.active]:opacity-100 group-[.active]:translate-x-0">02
+        / SYSTEM</span><span
+        class="rail-dot w-1.5 h-1.5 rounded-full bg-inkfaint transition-all duration-300 [&.active]:bg-blue [&.active]:shadow-[0_0_8px_#5b9dff]"></span>
+    </div>
+    <div class="rail-line w-px h-[26px] bg-line"></div>
+    <div class="rail-item group relative flex flex-col items-center" data-target="experience"><span
+        class="rail-label absolute right-6 font-mono text-[9px] tracking-[.1em] text-inkdim whitespace-nowrap opacity-0 translate-x-1.5 transition-all duration-300 group-[.active]:opacity-100 group-[.active]:translate-x-0">03
+        / EXPERIENCE</span><span
+        class="rail-dot w-1.5 h-1.5 rounded-full bg-inkfaint transition-all duration-300 [&.active]:bg-blue [&.active]:shadow-[0_0_8px_#5b9dff]"></span>
+    </div>
+    <div class="rail-line w-px h-[26px] bg-line"></div>
+    <div class="rail-item group relative flex flex-col items-center" data-target="projects"><span
+        class="rail-label absolute right-6 font-mono text-[9px] tracking-[.1em] text-inkdim whitespace-nowrap opacity-0 translate-x-1.5 transition-all duration-300 group-[.active]:opacity-100 group-[.active]:translate-x-0">04
+        / PROJECTS</span><span
+        class="rail-dot w-1.5 h-1.5 rounded-full bg-inkfaint transition-all duration-300 [&.active]:bg-blue [&.active]:shadow-[0_0_8px_#5b9dff]"></span>
+    </div>
+    <div class="rail-line w-px h-[26px] bg-line"></div>
+    <div class="rail-item group relative flex flex-col items-center" data-target="contact"><span
+        class="rail-label absolute right-6 font-mono text-[9px] tracking-[.1em] text-inkdim whitespace-nowrap opacity-0 translate-x-1.5 transition-all duration-300 group-[.active]:opacity-100 group-[.active]:translate-x-0">05
+        / CONNECT</span><span
+        class="rail-dot w-1.5 h-1.5 rounded-full bg-inkfaint transition-all duration-300 [&.active]:bg-blue [&.active]:shadow-[0_0_8px_#5b9dff]"></span>
+    </div>
+  </div>
+
+  <!-- ============ NAV ============ -->
+  <nav id="site-nav"
+    class="fixed top-0 left-0 right-0 z-[100] bg-[rgba(5,5,5,0.55)] backdrop-blur-[20px] border-b border-linesoft px-6 md:px-10 py-4 flex items-center justify-between">
+    <a href="#hero" data-nav class="font-mono text-xs tracking-[.2em] text-white">DHARM.GAI</a>
+    <div class="hidden md:flex items-center gap-9">
+      <a href="#about" data-nav
+        class="nav-link relative text-inkdim font-mono text-[11px] tracking-[.12em] transition-colors hover:text-ink after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-px after:bg-blue after:transition-[width] after:duration-300 hover:after:w-full motion-reduce:after:transition-none">ABOUT</a>
+      <a href="#skills" data-nav
+        class="nav-link relative text-inkdim font-mono text-[11px] tracking-[.12em] transition-colors hover:text-ink after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-px after:bg-blue after:transition-[width] after:duration-300 hover:after:w-full motion-reduce:after:transition-none">SKILLS</a>
+      <a href="#experience" data-nav
+        class="nav-link relative text-inkdim font-mono text-[11px] tracking-[.12em] transition-colors hover:text-ink after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-px after:bg-blue after:transition-[width] after:duration-300 hover:after:w-full motion-reduce:after:transition-none">EXPERIENCE</a>
+      <a href="#projects" data-nav
+        class="nav-link relative text-inkdim font-mono text-[11px] tracking-[.12em] transition-colors hover:text-ink after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-px after:bg-blue after:transition-[width] after:duration-300 hover:after:w-full motion-reduce:after:transition-none">PROJECTS</a>
+      <a href="#contact" data-nav
+        class="nav-link relative text-inkdim font-mono text-[11px] tracking-[.12em] transition-colors hover:text-ink after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-px after:bg-blue after:transition-[width] after:duration-300 hover:after:w-full motion-reduce:after:transition-none">CONTACT</a>
+    </div>
+    <a href="assets/DharmResume.pdf" download
+      class="hidden md:inline-flex btn-line font-mono text-[11px] tracking-[.1em] border border-line !py-2 !px-4 text-[10px] text-ink transition-all duration-300 items-center gap-2 hover:border-blue hover:bg-[rgba(91,157,255,0.06)]"
+      data-cursor="GET">RESUME</a>
+    <button id="mobile-nav-toggle"
+      class="md:hidden font-mono text-[10px] tracking-[.15em] text-white border border-line px-3 py-2">MENU</button>
+  </nav>
+  <div id="mobile-nav-panel"
+    class="md:hidden fixed inset-0 z-[95] bg-[rgba(3,3,3,0.97)] backdrop-blur-xl flex-col items-center justify-center gap-8 hidden">
+    <a href="#about" data-nav class="font-display tracking-[-0.02em] text-2xl text-white">ABOUT</a>
+    <a href="#skills" data-nav class="font-display tracking-[-0.02em] text-2xl text-white">SKILLS</a>
+    <a href="#experience" data-nav class="font-display tracking-[-0.02em] text-2xl text-white">EXPERIENCE</a>
+    <a href="#projects" data-nav class="font-display tracking-[-0.02em] text-2xl text-white">PROJECTS</a>
+    <a href="#contact" data-nav class="font-display tracking-[-0.02em] text-2xl text-white">CONTACT</a>
+    <a href="assets/DharmResume.pdf" download
+      class="inline-flex btn-line font-mono text-[11px] tracking-[.1em] border border-line px-[22px] py-3 text-ink transition-all duration-300 items-center gap-2 hover:border-blue hover:bg-[rgba(91,157,255,0.06)] mt-4">DOWNLOAD
+      RESUME</a>
+  </div>
+
+  <!-- ============ HERO ============ -->
+  <section id="hero" class="relative z-[2] flex items-center h-screen overflow-hidden bg-bg0">
+    <div
+      class="hero-grid-lines absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[length:64px_64px] [mask-image:radial-gradient(ellipse_70%_60%_at_60%_45%,black_10%,transparent_75%)] [-webkit-mask-image:radial-gradient(ellipse_70%_60%_at_60%_45%,black_10%,transparent_75%)]">
+    </div>
+
+    <div
+      class="relative w-full h-full flex flex-col md:flex-row items-center px-6 md:px-16 pt-24 md:pt-0 gap-10 md:gap-4">
+
+      <!-- LEFT: headline -->
+      <div class="w-full md:w-[38%] z-10 order-2 md:order-1">
+        <p class="eyebrow font-mono text-[11px] tracking-[.22em] text-blue mb-4 fade-up opacity-0 translate-y-6"
+          data-fade>IDENTITY TRANSFORMATION PROTOCOL</p>
+        <h1
+          class="font-display tracking-[-0.02em] text-[13vw] md:text-[3.6vw] leading-[0.95] font-semibold text-white fade-up opacity-0 translate-y-6"
+          data-fade>
+          DHARM<br>GAUTAM<br>SHAH
+        </h1>
+        <p class="font-display tracking-[-0.02em] text-lg md:text-xl mt-5 text-inkdim fade-up opacity-0 translate-y-6"
+          data-fade>
+          Generative AI<br>Engineer
+        </p>
+        <p class="font-body text-sm text-inkdim mt-5 max-w-xs leading-relaxed fade-up opacity-0 translate-y-6"
+          data-fade>
+          Building intelligent systems with LLMs, RAG, Agents and MCP.
+        </p>
+        <div class="mt-8 flex items-center gap-4 fade-up opacity-0 translate-y-6" data-fade>
+          <a href="#projects" data-nav
+            class="btn-line inline-flex font-mono text-[11px] tracking-[.1em] border border-line px-[22px] py-3 text-ink transition-all duration-300 items-center gap-2 hover:border-blue hover:bg-[rgba(91,157,255,0.06)]"
+            data-cursor="VIEW">SEE THE WORK ↓</a>
+        </div>
+      </div>
+
+      <!-- CENTER: identity viewport -->
+      <div class="w-full md:w-[62%] h-[52vh] md:h-[86vh] relative order-1 md:order-2">
+        <div id="identity-viewport"
+          class="absolute inset-0 flex items-center justify-center [mask-image:radial-gradient(ellipse_62%_78%_at_50%_42%,black_45%,transparent_88%)] [-webkit-mask-image:radial-gradient(ellipse_62%_78%_at_50%_42%,black_45%,transparent_88%)]">
+
+          <!-- Loading Overlay -->
+          <div id="animation-loader"
+            class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-bg0/80 backdrop-blur-md transition-opacity duration-500">
+            <div class="font-mono text-xs text-blue tracking-[0.2em] mb-3 animate-pulse">INITIALIZING NEURAL SEQUENCE
+            </div>
+            <div class="w-48 h-1 bg-line rounded-full overflow-hidden relative mb-2">
+              <div id="loader-bar"
+                class="h-full bg-[linear-gradient(90deg,#ff9a52,#5b9dff)] transition-all duration-150 w-0"></div>
+            </div>
+            <div id="loader-text" class="font-mono text-[10px] text-inkdim tracking-[0.15em]">LOADING FRAMES 0%</div>
+          </div>
+
+          <!-- Scroll Animation Canvas -->
+          <canvas id="identity-animation" class="w-full h-full block will-change-transform"></canvas>
+
+          <!-- Scan Sweep Flash -->
+          <div id="scan-sweep"
+            class="absolute inset-0 pointer-events-none opacity-0 bg-[linear-gradient(180deg,transparent_0%,rgba(91,157,255,0.5)_48%,transparent_100%)] mix-blend-screen z-10">
+          </div>
+        </div>
+
+        <!-- HUD readout -->
+        <div class="relative md:absolute mt-3 md:mt-0 left-0 md:left-4 bottom-0 md:bottom-8 w-full md:w-64 px-0 z-30">
+          <div class="glass bg-white/[0.02] border border-linesoft backdrop-blur-[12px] p-4">
+            <p class="font-mono text-[10px] tracking-[.15em] text-inkfaint mb-3">IDENTITY TRANSFORMATION</p>
+            <div class="flex items-center justify-between font-mono text-[10px] text-inkdim mb-2">
+              <span>DIGITAL</span><span>SYNTHESIS</span><span>REAL</span>
+            </div>
+            <div class="hud-track w-full h-px bg-line relative mb-3">
+              <div class="hud-fill absolute left-0 top-0 h-full w-0 bg-[linear-gradient(90deg,#ff9a52,#5b9dff)]"
+                id="hud-fill"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span id="hud-percent" class="font-mono text-2xl text-white">00%</span>
+              <span id="hud-label"
+                class="font-mono text-[10px] text-blue tracking-[.1em] text-right">DIGITAL<br>IDENTITY</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-[.2em] text-inkfaint animate-pulse">
+      SCROLL TO TRANSFORM
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about" class="relative z-[2] py-32 md:py-44 px-6 md:px-16 border-t border-linesoft">
+    <div class="grid md:grid-cols-12 gap-10">
+      <div class="md:col-span-4 fade-up opacity-0 translate-y-6" data-fade>
+        <p class="eyebrow font-mono text-[11px] tracking-[.22em] text-blue mb-5">ABOUT ME</p>
+        <h2 class="font-display tracking-[-0.02em] text-[11vw] md:text-6xl leading-[0.95] font-semibold text-white">I
+          BUILD<br>INTELLIGENT<br>SYSTEMS.</h2>
+      </div>
+      <div class="md:col-span-1"></div>
+      <div class="md:col-span-6 flex items-end fade-up opacity-0 translate-y-6" data-fade>
+        <p class="text-base md:text-lg text-inkdim leading-relaxed">
+          Generative AI and Full-Stack Developer with hands-on experience building LLM-powered applications,
+          multi-agent systems, Retrieval-Augmented Generation pipelines and MCP-based tool-calling agents
+          that integrate with real-world APIs — Google, Notion — across chatbots, automation pipelines and
+          data-driven models, with a focus on usability, performance and clean system architecture.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ARCHITECTURE ============ -->
+  <section id="architecture" class="relative z-[2] py-32 md:py-40 px-6 md:px-16 border-t border-linesoft">
+    <p class="eyebrow font-mono text-[11px] tracking-[.22em] text-blue mb-4 fade-up opacity-0 translate-y-6" data-fade>
+      02 / SYSTEM</p>
+    <h2
+      class="font-display tracking-[-0.02em] text-4xl md:text-5xl font-semibold text-white mb-16 fade-up opacity-0 translate-y-6"
+      data-fade>How the system thinks.</h2>
+
+    <div class="w-full overflow-x-auto">
+      <svg id="arch-svg" viewBox="0 0 1000 480" class="w-full min-w-[720px]" style="max-height:520px">
+        <!-- connecting lines -->
+        <g stroke="rgba(255,255,255,0.14)" stroke-width="1" fill="none">
+          <path id="p-user-llm" d="M500,50 L500,110" />
+          <path id="p-llm-agent" d="M500,150 L500,210" />
+          <path id="p-agent-rag" d="M500,250 C500,280 340,280 340,310" />
+          <path id="p-agent-mcp" d="M500,250 C500,280 660,280 660,310" />
+          <path id="p-rag-vec" d="M340,350 L340,400" />
+          <path id="p-mcp-tools" d="M660,350 L660,400" />
+          <path id="p-tools-g" d="M660,440 C660,460 500,460 500,480" />
+          <path id="p-tools-n" d="M660,440 L660,480" />
+          <path id="p-tools-a" d="M660,440 C660,460 820,460 820,480" />
+        </g>
+        <!-- animated flow dots -->
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="2.2s" repeatCount="indefinite" begin="0s">
+            <mpath href="#p-user-llm" />
+          </animateMotion>
+        </circle>
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="2.2s" repeatCount="indefinite" begin="0.3s">
+            <mpath href="#p-llm-agent" />
+          </animateMotion>
+        </circle>
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="2.4s" repeatCount="indefinite" begin="0.6s">
+            <mpath href="#p-agent-rag" />
+          </animateMotion>
+        </circle>
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="2.4s" repeatCount="indefinite" begin="0.9s">
+            <mpath href="#p-agent-mcp" />
+          </animateMotion>
+        </circle>
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="2s" repeatCount="indefinite" begin="1.2s">
+            <mpath href="#p-rag-vec" />
+          </animateMotion>
+        </circle>
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="2s" repeatCount="indefinite" begin="1.4s">
+            <mpath href="#p-mcp-tools" />
+          </animateMotion>
+        </circle>
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="1.8s" repeatCount="indefinite" begin="1.6s">
+            <mpath href="#p-tools-g" />
+          </animateMotion>
+        </circle>
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="1.8s" repeatCount="indefinite" begin="1.7s">
+            <mpath href="#p-tools-n" />
+          </animateMotion>
+        </circle>
+        <circle class="flow-dot fill-blue [filter:drop-shadow(0_0_4px_#5b9dff)]" r="3">
+          <animateMotion dur="1.8s" repeatCount="indefinite" begin="1.8s">
+            <mpath href="#p-tools-a" />
+          </animateMotion>
+        </circle>
+
+        <!-- nodes as foreignObject for HTML styling -->
+        <foreignObject x="440" y="12" width="120" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node lit font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            USER</div>
+        </foreignObject>
+        <foreignObject x="430" y="112" width="140" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            LLM</div>
+        </foreignObject>
+        <foreignObject x="415" y="212" width="170" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            AI AGENT</div>
+        </foreignObject>
+        <foreignObject x="280" y="312" width="120" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            RAG</div>
+        </foreignObject>
+        <foreignObject x="600" y="312" width="120" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            MCP</div>
+        </foreignObject>
+        <foreignObject x="270" y="402" width="140" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            VECTOR DB</div>
+        </foreignObject>
+        <foreignObject x="600" y="402" width="120" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            TOOLS</div>
+        </foreignObject>
+        <foreignObject x="440" y="442" width="120" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            GOOGLE</div>
+        </foreignObject>
+        <foreignObject x="600" y="442" width="120" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            NOTION</div>
+        </foreignObject>
+        <foreignObject x="760" y="442" width="120" height="38">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            class="node font-mono text-[11px] tracking-[.08em] border border-line bg-white/[0.02] px-4 py-2.5 rounded-[2px] text-inkdim transition-all duration-300 text-center [&.lit]:text-ink [&.lit]:border-[rgba(91,157,255,0.5)] [&.lit]:shadow-[0_0_22px_rgba(91,157,255,0.15)]">
+            APIs</div>
+        </foreignObject>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============ SKILLS ============ -->
+  <section id="skills" class="relative z-[2] py-32 md:py-40 px-6 md:px-16 border-t border-linesoft">
+    <p class="eyebrow font-mono text-[11px] tracking-[.22em] text-blue mb-4 fade-up opacity-0 translate-y-6" data-fade>
+      TECHNICAL SKILLS</p>
+    <h2
+      class="font-display tracking-[-0.02em] text-4xl md:text-5xl font-semibold text-white mb-16 fade-up opacity-0 translate-y-6"
+      data-fade>Stack constellation.</h2>
+
+    <div class="grid md:grid-cols-2 gap-x-12 gap-y-12">
+      <div class="fade-up opacity-0 translate-y-6" data-fade>
+        <p class="font-mono text-[11px] tracking-[.15em] text-inkfaint mb-4">LANGUAGES</p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Python</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">PHP</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">JavaScript</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Java</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">C#</span>
+        </div>
+      </div>
+      <div class="fade-up opacity-0 translate-y-6" data-fade>
+        <p class="font-mono text-[11px] tracking-[.15em] text-inkfaint mb-4">AI / LLM</p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">LangChain</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">LangGraph</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">MCP</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">RAG</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">LLM
+            Agents</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Tool
+            Calling</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Embeddings</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Vector
+            Databases</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Whisper</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">OCR</span>
+        </div>
+      </div>
+      <div class="fade-up opacity-0 translate-y-6" data-fade>
+        <p class="font-mono text-[11px] tracking-[.15em] text-inkfaint mb-4">FRAMEWORKS</p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">FastAPI</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Flask</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Django</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">ReactJS</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">CodeIgniter</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Laravel</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Spring
+            Boot</span>
+        </div>
+      </div>
+      <div class="fade-up opacity-0 translate-y-6" data-fade>
+        <p class="font-mono text-[11px] tracking-[.15em] text-inkfaint mb-4">APIS &amp; INTEGRATIONS</p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Google
+            OAuth 2.0</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Google
+            Calendar API</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Gmail
+            API</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Notion
+            API</span>
+        </div>
+      </div>
+      <div class="fade-up opacity-0 translate-y-6" data-fade>
+        <p class="font-mono text-[11px] tracking-[.15em] text-inkfaint mb-4">DATABASES</p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">MySQL</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">MongoDB</span>
+        </div>
+      </div>
+      <div class="fade-up opacity-0 translate-y-6" data-fade>
+        <p class="font-mono text-[11px] tracking-[.15em] text-inkfaint mb-4">ML / DATA</p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">NumPy</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Pandas</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Scikit-learn</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">PyTorch</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">TensorFlow</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Matplotlib</span><span
+            class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Seaborn</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXPERIENCE ============ -->
+  <section id="experience" class="relative z-[2] py-32 md:py-40 px-6 md:px-16 border-t border-linesoft">
+    <p class="eyebrow font-mono text-[11px] tracking-[.22em] text-blue mb-4 fade-up opacity-0 translate-y-6" data-fade>
+      03 / EXPERIENCE</p>
+    <h2
+      class="font-display tracking-[-0.02em] text-4xl md:text-5xl font-semibold text-white mb-16 fade-up opacity-0 translate-y-6"
+      data-fade>Where it was built.</h2>
+
+    <div class="grid md:grid-cols-[1px_1fr] gap-8 md:gap-14">
+      <div class="timeline-line w-px bg-line relative hidden md:block" id="timeline-line"></div>
+
+      <div class="flex flex-col gap-20">
+        <div class="relative fade-up opacity-0 translate-y-6" data-fade>
+          <div
+            class="timeline-dot w-[9px] h-[9px] rounded-full bg-bg0 border border-blue shadow-[0_0_0_4px_#030303] absolute -left-[3.6rem] top-1.5 hidden md:block">
+          </div>
+          <p class="font-mono text-xs text-blue tracking-[.1em] mb-2">2025</p>
+          <h3 class="font-display tracking-[-0.02em] text-2xl md:text-3xl text-white mb-1">Generative AI Developer
+            Intern</h3>
+          <p class="text-inkdim text-sm mb-6">Let's Enkindle</p>
+          <ul class="text-inkdim text-sm leading-relaxed space-y-2 mb-6 max-w-xl">
+            <li>— Built and tested LLM-based backend services using FastAPI and Flask for production-style AI workflows.
+            </li>
+            <li>— Designed RAG pipelines with vector embeddings for accurate document-based question answering.</li>
+            <li>— Applied prompt engineering techniques to improve LLM response accuracy and output quality.</li>
+          </ul>
+          <div class="flex flex-wrap gap-2">
+            <span
+              class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">LLM
+              Backends</span><span
+              class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">RAG
+              Pipelines</span><span
+              class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Vector
+              Embeddings</span><span
+              class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Prompt
+              Engineering</span><span
+              class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">FastAPI</span><span
+              class="skill-chip font-mono text-xs text-inkdim border border-line px-3.5 py-2 rounded-full transition-all duration-[250ms] bg-white/[0.015] hover:text-bg0 hover:bg-ink hover:border-ink hover:-translate-y-0.5 motion-reduce:transition-none">Flask</span>
+          </div>
+        </div>
+
+        <div class="relative fade-up opacity-0 translate-y-6" data-fade>
+          <div
+            class="timeline-dot w-[9px] h-[9px] rounded-full bg-bg0 border border-blue shadow-[0_0_0_4px_#030303] absolute -left-[3.6rem] top-1.5 hidden md:block">
+          </div>
+          <p class="font-mono text-xs text-amber tracking-[.1em] mb-2">FREELANCE</p>
+          <h3 class="font-display tracking-[-0.02em] text-2xl md:text-3xl text-white mb-1">Freelance Web Developer</h3>
+          <ul class="text-inkdim text-sm leading-relaxed space-y-2 max-w-xl">
+            <li>— Designed and developed a responsive real estate website with clean UI and cross-device compatibility.
+            </li>
+            <li>— Collaborated directly with the client to refine content presentation and improve user experience.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROJECTS ============ -->
+  <section id="projects" class="relative z-[2] py-32 md:py-40 border-t border-linesoft">
+    <div class="px-6 md:px-16 mb-16">
+      <p class="eyebrow font-mono text-[11px] tracking-[.22em] text-blue mb-4 fade-up opacity-0 translate-y-6"
+        data-fade>04 / PROJECTS</p>
+      <h2
+        class="font-display tracking-[-0.02em] text-4xl md:text-5xl font-semibold text-white fade-up opacity-0 translate-y-6"
+        data-fade>Systems, shipped.</h2>
+    </div>
+
+    <div id="projects-list">
+      <!-- injected by JS from PROJECTS data -->
+      <!-- each injected .project-panel should carry:
+         class="project-panel border-t border-line last:border-b last:border-line max-[900px]:cursor-pointer hover:bg-white/[0.015] transition-colors duration-[400ms]"
+         and any architecture caption text should use:
+         class="project-arch font-mono text-[11px] text-inkfaint" -->
+    </div>
+  </section>
+
+  <!-- ============ EDUCATION ============ -->
+  <section id="education" class="relative z-[2] py-32 md:py-40 px-6 md:px-16 border-t border-linesoft">
+    <p class="eyebrow font-mono text-[11px] tracking-[.22em] text-blue mb-4 fade-up opacity-0 translate-y-6" data-fade>
+      EDUCATION</p>
+    <h2
+      class="font-display tracking-[-0.02em] text-4xl md:text-5xl font-semibold text-white mb-16 fade-up opacity-0 translate-y-6"
+      data-fade>Foundations.</h2>
+
+    <div class="grid md:grid-cols-2 gap-10">
+      <div class="border-l border-line pl-6 fade-up opacity-0 translate-y-6" data-fade>
+        <p class="font-mono text-xs text-blue mb-2">2025 — 2027</p>
+        <h3 class="font-display tracking-[-0.02em] text-xl text-white mb-1">MCA · Generative AI</h3>
+        <p class="text-sm text-inkdim">Alliance University</p>
+      </div>
+      <div class="border-l border-line pl-6 fade-up opacity-0 translate-y-6" data-fade>
+        <p class="font-mono text-xs text-blue mb-2">2022 — 2025</p>
+        <h3 class="font-display tracking-[-0.02em] text-xl text-white mb-1">B.Sc. IT · Software Development</h3>
+        <p class="text-sm text-inkdim">Gujarat University</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL / CONTACT ============ -->
+  <section id="contact" class="relative z-[2] py-32 md:py-48 px-6 md:px-16 border-t border-linesoft overflow-hidden">
+    <div class="grid md:grid-cols-12 gap-10 items-center">
+      <div class="md:col-span-7 fade-up opacity-0 translate-y-6" data-fade>
+        <p class="eyebrow font-mono text-[11px] tracking-[.22em] text-blue mb-6">05 / CONNECT</p>
+        <h2
+          class="font-display tracking-[-0.02em] text-[11vw] md:text-6xl leading-[0.98] font-semibold text-white mb-8">
+          LET'S BUILD<br>SOMETHING<br>INTELLIGENT.
+        </h2>
+        <p class="font-mono text-xs tracking-[.15em] text-inkdim mb-10">
+          GENERATIVE AI · LLMS · RAG · AGENTS · MCP · FULL-STACK
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="https://github.com/DharmShah" target="_blank" rel="noopener"
+            class="btn-line inline-flex font-mono text-[11px] tracking-[.1em] border border-line px-[22px] py-3 text-ink transition-all duration-300 items-center gap-2 hover:border-blue hover:bg-[rgba(91,157,255,0.06)]"
+            data-cursor="OPEN">GITHUB</a>
+          <a href="https://in.linkedin.com/in/dharmgautamshah" target="_blank" rel="noopener"
+            class="btn-line inline-flex font-mono text-[11px] tracking-[.1em] border border-line px-[22px] py-3 text-ink transition-all duration-300 items-center gap-2 hover:border-blue hover:bg-[rgba(91,157,255,0.06)]"
+            data-cursor="OPEN">LINKEDIN</a>
+          <a href="assets/DharmResume.pdf" download
+            class="btn-line inline-flex font-mono text-[11px] tracking-[.1em] border border-line px-[22px] py-3 text-ink transition-all duration-300 items-center gap-2 hover:border-blue hover:bg-[rgba(91,157,255,0.06)]"
+            data-cursor="GET">DOWNLOAD RESUME</a>
+          <a href="mailto:dharmshah2004@gmail.com"
+            class="btn-line inline-flex font-mono text-[11px] tracking-[.1em] border border-line px-[22px] py-3 text-ink transition-all duration-300 items-center gap-2 hover:border-blue hover:bg-[rgba(91,157,255,0.06)]"
+            data-cursor="MAIL">CONTACT</a>
+        </div>
+      </div>
+
+      <div class="md:col-span-5 fade-up opacity-0 translate-y-6" data-fade>
+        <div class="relative max-w-xs mx-auto">
+          <img src="assets/professional.png" alt="Dharm Gautam Shah — real portrait"
+            class="w-full [mask-image:linear-gradient(180deg,black_70%,transparent_98%)] [-webkit-mask-image:linear-gradient(180deg,black_70%,transparent_98%)]">
+          <p class="text-center font-mono text-[10px] tracking-[.15em] text-inkfaint mt-4">
+            THE DIGITAL VERSION WAS<br>JUST THE BEGINNING.
+          </p>
+          <p class="text-center font-display tracking-[-0.02em] text-sm text-white mt-3">DHARM GAUTAM SHAH</p>
+          <p class="text-center font-mono text-[10px] tracking-[.1em] text-blue">GENERATIVE AI ENGINEER</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer
+    class="relative z-[2] px-6 md:px-16 py-8 border-t border-linesoft flex flex-col md:flex-row items-center justify-between gap-3">
+    <p class="font-mono text-[10px] tracking-[.1em] text-inkfaint">© 2026 DHARM GAUTAM SHAH</p>
+    <div class="flex items-center gap-6">
+      <a href="https://leetcode.com/u/DharmShah/" target="_blank" rel="noopener"
+        class="font-mono text-[10px] tracking-[.1em] text-inkfaint hover:text-ink">LEETCODE</a>
+      <a href="https://www.hackerrank.com/profile/dshahmca25" target="_blank" rel="noopener"
+        class="font-mono text-[10px] tracking-[.1em] text-inkfaint hover:text-ink">HACKERRANK</a>
+      <a href="https://dharmgautam.netlify.app/" target="_blank" rel="noopener"
+        class="font-mono text-[10px] tracking-[.1em] text-inkfaint hover:text-ink">PORTFOLIO</a>
+    </div>
+  </footer>
+
+  <!-- ============ PROJECT OVERLAY ============ -->
+  <div id="project-overlay"
+    class="overlay fixed inset-0 z-[200] bg-[rgba(3,3,3,0.92)] backdrop-blur-[20px] opacity-0 pointer-events-none transition-opacity duration-[350ms] overflow-y-auto [&.open]:opacity-100 [&.open]:pointer-events-auto">
+    <div class="max-w-3xl mx-auto px-6 md:px-0 py-24 md:py-32">
+      <button id="overlay-close"
+        class="btn-line inline-flex font-mono text-[11px] tracking-[.1em] border border-line px-[22px] py-3 text-ink transition-all duration-300 items-center gap-2 hover:border-blue hover:bg-[rgba(91,157,255,0.06)] mb-12"
+        data-cursor="CLOSE">← CLOSE</button>
+      <div id="overlay-content"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
