@@ -116,7 +116,7 @@ function initFaceSequence(){
   const sweep = document.getElementById('scan-sweep');
 
   const TOTAL_FRAMES = 240;
-  const FRAME_BASE_PATH = 'assets/photos/';
+  const FRAME_BASE_PATH = '/assets/photos/';
   const images = new Array(TOTAL_FRAMES);
   let loadedCount = 0;
   let errorCount = 0;
@@ -204,6 +204,8 @@ function initFaceSequence(){
     const padded = String(n).padStart(3, '0');
     return `${FRAME_BASE_PATH}ezgif-frame-${padded}.png`;
   }
+
+  console.log('Frame URL:', getFramePath(1));
 
   // Canvas resize event listener
   window.addEventListener('resize', resizeCanvas);
