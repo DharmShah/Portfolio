@@ -116,8 +116,10 @@ function initFaceSequence(){
   const sweep = document.getElementById('scan-sweep');
 
   const TOTAL_FRAMES = 240;
+  const FRAME_BASE_PATH = 'assets/photos/';
   const images = new Array(TOTAL_FRAMES);
   let loadedCount = 0;
+  let errorCount = 0;
 
   // Frame sequence milestone labels for HUD
   const labels = [
@@ -200,51 +202,66 @@ function initFaceSequence(){
   // Preload frame helper
   function getFramePath(n){
     const padded = String(n).padStart(3, '0');
-    return `assets/photos/ezgif-frame-${padded}.png`;
+    return `${FRAME_BASE_PATH}ezgif-frame-${padded}.png`;
   }
 
   // Canvas resize event listener
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  // Load Frame 1 immediately so initial viewport displays image immediately
-  const firstImg = new Image();
-  firstImg.src = getFramePath(1);
-  firstImg.onload = () => {
-    images[0] = firstImg;
-    if (currentFrame === -1) {
-      drawFrame(0);
+  function loadFrame(index) {
+    return new Promise((resolve) => {
+      const frameUrl = getFramePath(index);
+      const img = new Image();
+
+      img.onload = () => {
+        images[index - 1] = img;
+        loadedCount++;
+        updateLoadingProgress();
+        if (index === 1 && currentFrame === -1) {
+          drawFrame(0);
+        }
+        resolve(img);
+      };
+
+      img.onerror = () => {
+        errorCount++;
+        console.error(`Failed to load frame ${index}:`, frameUrl);
+        updateLoadingProgress();
+        resolve(null);
+      };
+
+      img.src = frameUrl;
+    });
+  }
+
+  function updateLoadingProgress() {
+    const totalProcessed = loadedCount + errorCount;
+    const percent = Math.round((totalProcessed / TOTAL_FRAMES) * 100);
+    
+    if (loaderBar) loaderBar.style.width = percent + '%';
+    
+    if (errorCount > 0 && loadedCount === 0) {
+      if (loaderText) loaderText.textContent = `ANIMATION ASSET ERROR — CHECKING FRAME PATH...`;
+    } else {
+      if (loaderText) loaderText.textContent = `LOADING FRAMES ${percent}%`;
     }
-  };
+
+    if (totalProcessed === TOTAL_FRAMES) {
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => { loader.style.display = 'none'; }, 500);
+      }
+      paint(currentProgress);
+    }
+  }
+
+  // Load Frame 1 immediately so initial viewport displays image immediately
+  loadFrame(1);
 
   // Preload all 240 frames into memory asynchronously
   for (let i = 1; i <= TOTAL_FRAMES; i++) {
-    const img = new Image();
-    img.src = getFramePath(i);
-
-    const onFinish = () => {
-      images[i - 1] = img;
-      loadedCount++;
-      
-      const percent = Math.round((loadedCount / TOTAL_FRAMES) * 100);
-      if (loaderBar) loaderBar.style.width = percent + '%';
-      if (loaderText) loaderText.textContent = `LOADING FRAMES ${percent}%`;
-
-      if (i === 1 && currentFrame === -1) {
-        drawFrame(0);
-      }
-
-      if (loadedCount === TOTAL_FRAMES) {
-        if (loader) {
-          loader.style.opacity = '0';
-          setTimeout(() => { loader.style.display = 'none'; }, 500);
-        }
-        paint(currentProgress);
-      }
-    };
-
-    img.onload = onFinish;
-    img.onerror = onFinish;
+    loadFrame(i);
   }
 
   if (REDUCED_MOTION){
