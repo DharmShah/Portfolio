@@ -48,6 +48,84 @@
   --font-mono: 'IBM Plex Mono', monospace;
 }
 </style>
+  <!-- CSS variable aliases + reusable class definitions for JS-injected content -->
+  <style>
+    /* ── Scroll offset so fixed nav never hides section headings ── */
+    html {
+      scroll-padding-top: 72px;
+    }
+    :root {
+      --blue: #5b9dff;
+      --amber: #ff9a52;
+      --ink: #ececef;
+      --ink-dim: #8c8c94;
+      --ink-faint: #4f4f57;
+      --bg0: #030303;
+      --line: rgba(255,255,255,0.08);
+      --linesoft: rgba(255,255,255,0.045);
+    }
+
+    /* Reusable chip — used in both static HTML (via Tailwind utilities) and JS-injected content */
+    .skill-chip {
+      display: inline-flex;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      color: #8c8c94;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 0.5rem 0.875rem;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.015);
+      transition: color 250ms, background 250ms, border-color 250ms, transform 250ms;
+      cursor: default;
+    }
+    .skill-chip:hover {
+      color: #030303;
+      background: #ececef;
+      border-color: #ececef;
+      transform: translateY(-2px);
+    }
+
+    /* Reusable button — used in both static HTML and JS-injected overlays */
+    .btn-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      letter-spacing: 0.1em;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 0.75rem 1.375rem;
+      color: #ececef;
+      text-decoration: none;
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 300ms, background 300ms;
+    }
+    .btn-line:hover {
+      border-color: #5b9dff;
+      background: rgba(91,157,255,0.06);
+    }
+
+    /* Project panel borders */
+    .project-panel {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      transition: background 400ms;
+    }
+    .project-panel:last-child {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .project-panel:hover {
+      background: rgba(255,255,255,0.015);
+    }
+
+    /* Architecture trace in project panels & overlay */
+    .project-arch {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      color: #4f4f57;
+      line-height: 1.8;
+    }
+  </style>
 </head>
 
 <body
@@ -124,7 +202,10 @@
       class="md:hidden font-mono text-[10px] tracking-[.15em] text-white border border-line px-3 py-2">MENU</button>
   </nav>
   <div id="mobile-nav-panel"
-    class="md:hidden fixed inset-0 z-[95] bg-[rgba(3,3,3,0.97)] backdrop-blur-xl flex-col items-center justify-center gap-8 hidden">
+    class="md:hidden fixed inset-0 z-[110] bg-[rgba(3,3,3,0.97)] backdrop-blur-xl flex-col items-center justify-center gap-8 hidden">
+    <!-- Close button -->
+    <button id="mobile-nav-close"
+      class="absolute top-5 right-6 font-mono text-[10px] tracking-[.15em] text-white border border-line px-3 py-2">✕ CLOSE</button>
     <a href="#about" data-nav class="font-display tracking-[-0.02em] text-2xl text-white">ABOUT</a>
     <a href="#skills" data-nav class="font-display tracking-[-0.02em] text-2xl text-white">SKILLS</a>
     <a href="#experience" data-nav class="font-display tracking-[-0.02em] text-2xl text-white">EXPERIENCE</a>
@@ -136,13 +217,13 @@
   </div>
 
   <!-- ============ HERO ============ -->
-  <section id="hero" class="relative z-[2] flex items-center h-screen overflow-hidden bg-bg0">
+  <section id="hero" class="relative z-[2] flex items-center min-h-screen overflow-hidden bg-bg0">
     <div
       class="hero-grid-lines absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[length:64px_64px] [mask-image:radial-gradient(ellipse_70%_60%_at_60%_45%,black_10%,transparent_75%)] [-webkit-mask-image:radial-gradient(ellipse_70%_60%_at_60%_45%,black_10%,transparent_75%)]">
     </div>
 
     <div
-      class="relative w-full h-full flex flex-col md:flex-row items-center px-6 md:px-16 pt-24 md:pt-0 gap-10 md:gap-4">
+      class="relative w-full h-full flex flex-col md:flex-row items-center px-6 md:px-16 pt-20 pb-16 md:pt-0 md:pb-0 gap-6 md:gap-4">
 
       <!-- LEFT: headline -->
       <div class="w-full md:w-[38%] z-10 order-2 md:order-1">
@@ -169,9 +250,9 @@
       </div>
 
       <!-- CENTER: identity viewport -->
-      <div class="w-full md:w-[62%] h-[52vh] md:h-[86vh] relative order-1 md:order-2">
+      <div class="w-full md:w-[62%] flex flex-col md:block md:h-[86vh] relative order-1 md:order-2">
         <div id="identity-viewport"
-          class="absolute inset-0 flex items-center justify-center [mask-image:radial-gradient(ellipse_62%_78%_at_50%_42%,black_45%,transparent_88%)] [-webkit-mask-image:radial-gradient(ellipse_62%_78%_at_50%_42%,black_45%,transparent_88%)]">
+          class="relative h-[42vh] w-full md:absolute md:inset-0 md:h-auto flex items-center justify-center [mask-image:radial-gradient(ellipse_62%_78%_at_50%_42%,black_45%,transparent_88%)] [-webkit-mask-image:radial-gradient(ellipse_62%_78%_at_50%_42%,black_45%,transparent_88%)]">
 
           <!-- Loading Overlay -->
           <div id="animation-loader"
@@ -195,7 +276,7 @@
         </div>
 
         <!-- HUD readout -->
-        <div class="relative md:absolute mt-3 md:mt-0 left-0 md:left-4 bottom-0 md:bottom-8 w-full md:w-64 px-0 z-30">
+        <div class="relative md:absolute mt-2 md:mt-0 left-0 md:left-4 bottom-auto md:bottom-8 w-full md:w-64 px-0 z-30 shrink-0">
           <div class="glass bg-white/[0.02] border border-linesoft backdrop-blur-[12px] p-4">
             <p class="font-mono text-[10px] tracking-[.15em] text-inkfaint mb-3">IDENTITY TRANSFORMATION</p>
             <div class="flex items-center justify-between font-mono text-[10px] text-inkdim mb-2">

@@ -116,7 +116,7 @@ function initFaceSequence(){
   const sweep = document.getElementById('scan-sweep');
 
   const TOTAL_FRAMES = 240;
-  const FRAME_BASE_PATH = '/assets/photos/';
+  const FRAME_BASE_PATH = 'assets/photos/';
   const images = new Array(TOTAL_FRAMES);
   let loadedCount = 0;
   let errorCount = 0;
@@ -433,17 +433,17 @@ function initCursor(){
 function initProjectInteractions(){
   const list = document.getElementById('projects-list');
   list.innerHTML = PROJECTS.map(p => `
-    <div class="project-panel px-6 md:px-16 py-10 md:py-14 grid md:grid-cols-12 gap-6 items-center" data-idx="${p.n}" data-cursor="VIEW">
-      <span class="md:col-span-1 font-mono text-sm text-[var(--ink-faint)]">${p.n}</span>
+    <div class="project-panel px-6 md:px-16 py-10 md:py-14 grid md:grid-cols-12 gap-6 items-center cursor-pointer" data-idx="${p.n}" data-cursor="VIEW">
+      <span class="md:col-span-1 font-mono text-sm" style="color:#4f4f57">${p.n}</span>
       <div class="md:col-span-5">
-        <h3 class="font-display text-2xl md:text-4xl text-white group-hover:text-[var(--blue)]">${p.title}</h3>
-        <p class="text-sm text-[var(--ink-dim)] mt-2 max-w-md">${p.tag}</p>
+        <h3 class="font-display text-2xl md:text-4xl" style="color:#ececef">${p.title}</h3>
+        <p class="text-sm mt-2 max-w-md" style="color:#8c8c94">${p.tag}</p>
       </div>
       <div class="md:col-span-5 project-arch">
         ${p.arch.map(a => `<div>${a}</div>`).join('')}
       </div>
       <div class="md:col-span-1 flex md:justify-end">
-        <span class="font-mono text-[10px] text-[var(--ink-faint)] tracking-[.1em]">${p.github ? 'OPEN →' : 'PRIVATE'}</span>
+        <span class="font-mono tracking-[.1em]" style="font-size:10px;color:#4f4f57">${p.github ? 'OPEN →' : 'PRIVATE'}</span>
       </div>
     </div>
   `).join('');
@@ -455,28 +455,28 @@ function initProjectInteractions(){
     panel.addEventListener('click', () => {
       const p = PROJECTS.find(pr => pr.n === panel.dataset.idx);
       content.innerHTML = `
-        <p class="font-mono text-xs text-[var(--blue)] tracking-[.15em] mb-4">PROJECT ${p.n}</p>
-        <h3 class="font-display text-4xl md:text-6xl text-white mb-3">${p.title}</h3>
-        <p class="text-[var(--ink-dim)] mb-10">${p.tag}</p>
+        <p class="font-mono text-xs tracking-[.15em] mb-4" style="color:#5b9dff">PROJECT ${p.n}</p>
+        <h3 class="font-display text-4xl md:text-6xl mb-3" style="color:#ececef">${p.title}</h3>
+        <p class="mb-10" style="color:#8c8c94">${p.tag}</p>
 
-        <p class="font-mono text-[11px] tracking-[.15em] text-[var(--ink-faint)] mb-3">DESCRIPTION</p>
-        <p class="text-[var(--ink-dim)] leading-relaxed mb-10 max-w-2xl">${p.desc}</p>
+        <p class="font-mono text-[11px] tracking-[.15em] mb-3" style="color:#4f4f57">DESCRIPTION</p>
+        <p class="leading-relaxed mb-10 max-w-2xl" style="color:#8c8c94">${p.desc}</p>
 
-        <p class="font-mono text-[11px] tracking-[.15em] text-[var(--ink-faint)] mb-3">ARCHITECTURE</p>
-        <div class="project-arch mb-10 text-sm leading-loose">${p.arch.join(' &nbsp;→&nbsp; ')}</div>
+        <p class="font-mono text-[11px] tracking-[.15em] mb-3" style="color:#4f4f57">ARCHITECTURE</p>
+        <div class="project-arch mb-10" style="font-size:0.875rem;line-height:2">${p.arch.join('  →  ')}</div>
 
         ${p.features.length ? `
-        <p class="font-mono text-[11px] tracking-[.15em] text-[var(--ink-faint)] mb-3">KEY FEATURES</p>
-        <ul class="text-[var(--ink-dim)] leading-relaxed mb-10 max-w-2xl space-y-2">
+        <p class="font-mono text-[11px] tracking-[.15em] mb-3" style="color:#4f4f57">KEY FEATURES</p>
+        <ul class="leading-relaxed mb-10 max-w-2xl" style="color:#8c8c94;display:flex;flex-direction:column;gap:0.5rem">
           ${p.features.map(f => `<li>— ${f}</li>`).join('')}
         </ul>` : ''}
 
-        <p class="font-mono text-[11px] tracking-[.15em] text-[var(--ink-faint)] mb-3">TECH STACK</p>
-        <div class="flex flex-wrap gap-2 mb-12">
+        <p class="font-mono text-[11px] tracking-[.15em] mb-3" style="color:#4f4f57">TECH STACK</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:3rem">
           ${p.stack.map(s => `<span class="skill-chip">${s}</span>`).join('')}
         </div>
 
-        <div class="flex flex-wrap gap-4">
+        <div style="display:flex;flex-wrap:wrap;gap:1rem">
           ${p.github ? `<a href="${p.github}" target="_blank" rel="noopener" class="btn-line" data-cursor="OPEN">GITHUB</a>` : `<span class="btn-line" style="opacity:.5;cursor:default">${p.githubLabel || 'SOURCE NOT PUBLIC'}</span>`}
           ${p.demo ? `<a href="${p.demo}" target="_blank" rel="noopener" class="btn-line" data-cursor="OPEN">LIVE DEMO</a>` : ''}
         </div>
@@ -528,6 +528,9 @@ function initNavigation(lenis){
       else { panel.classList.remove('hidden'); panel.classList.add('flex'); document.body.style.overflow = 'hidden'; }
     });
   }
+  // ✕ CLOSE button inside the drawer
+  const closeBtn = document.getElementById('mobile-nav-close');
+  if (closeBtn) closeBtn.addEventListener('click', closeMobileNav);
 
   const railItems = document.querySelectorAll('.rail-item');
   const sectionIds = ['hero', 'architecture', 'experience', 'projects', 'contact'];
