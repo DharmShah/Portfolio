@@ -2,13 +2,25 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/assets/(.*\\.(jpg|jpeg|png))",
+      "source": "/assets/(.*).jpg",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     },
     {
-      "source": "/assets/(.*\\.pdf)",
+      "source": "/assets/(.*).jpeg",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/assets/(.*).png",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/assets/(.*).pdf",
       "headers": [
         { "key": "Content-Type", "value": "application/pdf" },
         { "key": "Content-Disposition", "value": "attachment" },
