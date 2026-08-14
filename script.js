@@ -94,34 +94,37 @@ function initLenis(){
 
 /* ---------------------------------------------------------
    FACE / IDENTITY SEQUENCE
-   No face-transition.mp4 was supplied in the project assets,
-   so the "scroll scrubs the transformation" mechanic drives a
-   5-frame image sequence (cartoon -> transitional render ->
-   realistic -> real headshot) instead of video.currentTime.
-   Swapping in a real video later only requires replacing this
-   function's rendering step.
+   Only 5 real images exist in /assets (no 240-frame export was
+   ever generated). This renders a canvas crossfade between them,
+   driven by scroll, using RELATIVE paths so it works regardless
+   of Vercel root-directory settings.
 --------------------------------------------------------- */
 function initFaceSequence(){
   const canvas = document.getElementById('identity-animation');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  
+
   const loader = document.getElementById('animation-loader');
   const loaderBar = document.getElementById('loader-bar');
   const loaderText = document.getElementById('loader-text');
-  
+
   const hudFill = document.getElementById('hud-fill');
   const hudPercent = document.getElementById('hud-percent');
   const hudLabel = document.getElementById('hud-label');
   const sweep = document.getElementById('scan-sweep');
 
-  const TOTAL_FRAMES = 240;
-  const FRAME_BASE_PATH = 'assets/photos/';
+  const FRAME_FILES = [
+    'assets/cartoon-front.jpg',
+    'assets/cartoon-back.jpg',
+    'assets/transition-profile.jpg',
+    'assets/real-office.jpg',
+    'assets/real-headshot-cutout.png'
+  ];
+  const TOTAL_FRAMES = FRAME_FILES.length;
   const images = new Array(TOTAL_FRAMES);
   let loadedCount = 0;
   let errorCount = 0;
 
-  // Frame sequence milestone labels for HUD
   const labels = [
     { max: 0.20, text: 'DIGITAL<br>IDENTITY' },
     { max: 0.45, text: 'NEURAL<br>TRANSFORMATION' },
@@ -130,127 +133,90 @@ function initFaceSequence(){
     { max: 1.001, text: 'IDENTITY<br>REVEALED' }
   ];
 
-  let currentFrame = -1;
   let targetProgress = 0;
   let currentProgress = 0;
 
-  // Set canvas scale for crisp rendering on Retina/High-DPI displays
   function resizeCanvas(){
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     const dpr = window.devicePixelRatio || 1;
-    
     canvas.width = Math.round(rect.width * dpr);
     canvas.height = Math.round(rect.height * dpr);
-
-    if (currentFrame >= 0 && images[currentFrame] && images[currentFrame].complete) {
-      drawFrame(currentFrame);
-    }
+    paint(currentProgress);
   }
 
-  // Draw specific frame onto canvas maintaining aspect ratio without distortion
-  function drawFrame(index){
-    const img = images[index];
+  function drawImageCover(img, alpha){
     if (!img || !img.complete || img.naturalWidth === 0) return;
-
-    const cw = canvas.width;
-    const ch = canvas.height;
+    const cw = canvas.width, ch = canvas.height;
     if (!cw || !ch) return;
+    const iw = img.naturalWidth, ih = img.naturalHeight;
+    const scale = Math.max(cw / iw, ch / ih);
+    const dw = iw * scale, dh = ih * scale;
+    const dx = (cw - dw) / 2, dy = (ch - dh) * 0.15;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, 0, 0, iw, ih, dx, dy, dw, dh);
+    ctx.globalAlpha = 1;
+  }
 
-    const iw = img.naturalWidth;
-    const ih = img.naturalHeight;
-
-    // Use contain fit scaling to preserve aspect ratio cleanly
-    const scale = Math.min(cw / iw, ch / ih);
-    const dw = iw * scale;
-    const dh = ih * scale;
-    const dx = (cw - dw) / 2;
-    const dy = (ch - dh) / 2;
+  function paint(p){
+    const cw = canvas.width, ch = canvas.height;
+    if (!cw || !ch) return;
+    const clampedP = Math.min(1, Math.max(0, p));
+    const pos = clampedP * (TOTAL_FRAMES - 1);
+    const idx = Math.min(TOTAL_FRAMES - 2, Math.floor(pos));
+    const frac = pos - idx;
 
     ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(img, 0, 0, iw, ih, dx, dy, dw, dh);
-    currentFrame = index;
-  }
+    if (images[idx]) drawImageCover(images[idx], 1);
+    if (images[idx + 1] && frac > 0) drawImageCover(images[idx + 1], frac);
 
-  // Update canvas and HUD readouts based on progress p in [0, 1]
-  function paint(p){
-    const clampedP = Math.min(1, Math.max(0, p));
-    const frameIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(clampedP * (TOTAL_FRAMES - 1)));
-    
-    if (frameIndex !== currentFrame) {
-      drawFrame(frameIndex);
-    }
-
-    // HUD readout updates
     const pct = Math.round(clampedP * 100);
     if (hudFill) hudFill.style.width = pct + '%';
     if (hudPercent) hudPercent.textContent = String(pct).padStart(2, '0') + '%';
-    
-    const l = labels.find(item => clampedP <= item.max) || labels[labels.length - 1];
-    if (hudLabel && hudLabel.innerHTML !== l.text){
-      hudLabel.innerHTML = l.text;
-    }
 
-    // Scan sweep flash during scroll movement
+    const l = labels.find(item => clampedP <= item.max) || labels[labels.length - 1];
+    if (hudLabel && hudLabel.innerHTML !== l.text) hudLabel.innerHTML = l.text;
+
     if (sweep && !REDUCED_MOTION){
-      const frac = (clampedP * (TOTAL_FRAMES - 1)) % 1;
       const distToBoundary = Math.min(frac, 1 - frac);
       sweep.style.opacity = Math.max(0, 0.35 - distToBoundary * 1.4);
     }
   }
 
-  // Preload frame helper
-  function getFramePath(n){
-    const padded = String(n).padStart(3, '0');
-    return `${FRAME_BASE_PATH}ezgif-frame-${padded}.png`;
-  }
-
-  console.log('Frame URL:', getFramePath(1));
-
-  // Canvas resize event listener
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  function loadFrame(index) {
+  function loadFrame(index){
     return new Promise((resolve) => {
-      const frameUrl = getFramePath(index);
       const img = new Image();
-
       img.onload = () => {
-        images[index - 1] = img;
+        images[index] = img;
         loadedCount++;
         updateLoadingProgress();
-        if (index === 1 && currentFrame === -1) {
-          drawFrame(0);
-        }
+        if (index === 0) paint(0);
         resolve(img);
       };
-
       img.onerror = () => {
         errorCount++;
-        console.error(`Failed to load frame ${index}:`, frameUrl);
+        console.error(`Failed to load frame ${index}:`, FRAME_FILES[index]);
         updateLoadingProgress();
         resolve(null);
       };
-
-      img.src = frameUrl;
+      img.src = FRAME_FILES[index];
     });
   }
 
-  function updateLoadingProgress() {
+  function updateLoadingProgress(){
     const totalProcessed = loadedCount + errorCount;
     const percent = Math.round((totalProcessed / TOTAL_FRAMES) * 100);
-    
     if (loaderBar) loaderBar.style.width = percent + '%';
-    
-    if (errorCount > 0 && loadedCount === 0) {
-      if (loaderText) loaderText.textContent = `ANIMATION ASSET ERROR — CHECKING FRAME PATH...`;
+    if (errorCount > 0 && loadedCount === 0){
+      if (loaderText) loaderText.textContent = 'ANIMATION ASSET ERROR — CHECK /assets PATH';
     } else {
       if (loaderText) loaderText.textContent = `LOADING FRAMES ${percent}%`;
     }
-
-    if (totalProcessed === TOTAL_FRAMES) {
-      if (loader) {
+    if (totalProcessed === TOTAL_FRAMES){
+      if (loader){
         loader.style.opacity = '0';
         setTimeout(() => { loader.style.display = 'none'; }, 500);
       }
@@ -258,50 +224,34 @@ function initFaceSequence(){
     }
   }
 
-  // Load Frame 1 immediately so initial viewport displays image immediately
-  loadFrame(1);
-
-  // Preload all 240 frames into memory asynchronously
-  for (let i = 1; i <= TOTAL_FRAMES; i++) {
-    loadFrame(i);
-  }
+  for (let i = 0; i < TOTAL_FRAMES; i++) loadFrame(i);
 
   if (REDUCED_MOTION){
-    const finalImg = new Image();
-    finalImg.src = getFramePath(240);
-    finalImg.onload = () => {
-      images[239] = finalImg;
-      drawFrame(239);
-      if (hudFill) hudFill.style.width = '100%';
-      if (hudPercent) hudPercent.textContent = '100%';
-      if (hudLabel) hudLabel.innerHTML = 'IDENTITY<br>REVEALED';
+    const img = new Image();
+    img.onload = () => {
+      images[TOTAL_FRAMES - 1] = img;
+      paint(1);
       if (loader) loader.style.display = 'none';
     };
+    img.src = FRAME_FILES[TOTAL_FRAMES - 1];
     return;
   }
 
-  // Pin hero section while user scrolls through 240 frames
   ScrollTrigger.create({
     trigger: '#hero',
     start: 'top top',
     end: '+=3600',
     pin: true,
     scrub: 0.5,
-    onUpdate: self => {
-      targetProgress = self.progress;
-    }
+    onUpdate: self => { targetProgress = self.progress; }
   });
 
-  // RAF loop for smooth lerp rendering
   function render(){
     currentProgress += (targetProgress - currentProgress) * 0.18;
-    if (Math.abs(currentProgress - targetProgress) < 0.0003) {
-      currentProgress = targetProgress;
-    }
+    if (Math.abs(currentProgress - targetProgress) < 0.0003) currentProgress = targetProgress;
     paint(currentProgress);
     requestAnimationFrame(render);
   }
-  
   render();
 }
 
@@ -319,7 +269,6 @@ function initScrollAnimation(){
     });
   });
 
-  // Architecture node "lit" pulse as it enters view
   gsap.utils.toArray('.node').forEach((node) => {
     ScrollTrigger.create({
       trigger: node,
@@ -328,7 +277,6 @@ function initScrollAnimation(){
     });
   });
 
-  // Timeline vertical line draw
   const line = document.getElementById('timeline-line');
   if (line && !REDUCED_MOTION){
     gsap.fromTo(line, { scaleY: 0 }, {
@@ -433,17 +381,17 @@ function initCursor(){
 function initProjectInteractions(){
   const list = document.getElementById('projects-list');
   list.innerHTML = PROJECTS.map(p => `
-    <div class="project-panel px-6 md:px-16 py-10 md:py-14 grid md:grid-cols-12 gap-6 items-center cursor-pointer" data-idx="${p.n}" data-cursor="VIEW">
-      <span class="md:col-span-1 font-mono text-sm" style="color:#4f4f57">${p.n}</span>
+    <div class="project-panel border-t border-line last:border-b last:border-line max-[900px]:cursor-pointer hover:bg-white/[0.015] transition-colors duration-[400ms] px-6 md:px-16 py-10 md:py-14 grid md:grid-cols-12 gap-6 items-center cursor-pointer" data-idx="${p.n}" data-cursor="VIEW">
+      <span class="md:col-span-1 font-mono text-sm text-inkfaint">${p.n}</span>
       <div class="md:col-span-5">
-        <h3 class="font-display text-2xl md:text-4xl" style="color:#ececef">${p.title}</h3>
-        <p class="text-sm mt-2 max-w-md" style="color:#8c8c94">${p.tag}</p>
+        <h3 class="font-display text-2xl md:text-4xl text-ink">${p.title}</h3>
+        <p class="text-sm mt-2 max-w-md text-inkdim">${p.tag}</p>
       </div>
-      <div class="md:col-span-5 project-arch">
+      <div class="md:col-span-5 project-arch font-mono text-[11px] text-inkfaint">
         ${p.arch.map(a => `<div>${a}</div>`).join('')}
       </div>
       <div class="md:col-span-1 flex md:justify-end">
-        <span class="font-mono tracking-[.1em]" style="font-size:10px;color:#4f4f57">${p.github ? 'OPEN →' : 'PRIVATE'}</span>
+        <span class="font-mono tracking-[.1em] text-[10px] text-inkfaint">${p.github ? 'OPEN →' : 'PRIVATE'}</span>
       </div>
     </div>
   `).join('');
@@ -455,29 +403,29 @@ function initProjectInteractions(){
     panel.addEventListener('click', () => {
       const p = PROJECTS.find(pr => pr.n === panel.dataset.idx);
       content.innerHTML = `
-        <p class="font-mono text-xs tracking-[.15em] mb-4" style="color:#5b9dff">PROJECT ${p.n}</p>
-        <h3 class="font-display text-4xl md:text-6xl mb-3" style="color:#ececef">${p.title}</h3>
-        <p class="mb-10" style="color:#8c8c94">${p.tag}</p>
+        <p class="font-mono text-xs tracking-[.15em] mb-4 text-blue">PROJECT ${p.n}</p>
+        <h3 class="font-display text-4xl md:text-6xl mb-3 text-ink">${p.title}</h3>
+        <p class="mb-10 text-inkdim">${p.tag}</p>
 
-        <p class="font-mono text-[11px] tracking-[.15em] mb-3" style="color:#4f4f57">DESCRIPTION</p>
-        <p class="leading-relaxed mb-10 max-w-2xl" style="color:#8c8c94">${p.desc}</p>
+        <p class="font-mono text-[11px] tracking-[.15em] mb-3 text-inkfaint">DESCRIPTION</p>
+        <p class="leading-relaxed mb-10 max-w-2xl text-inkdim">${p.desc}</p>
 
-        <p class="font-mono text-[11px] tracking-[.15em] mb-3" style="color:#4f4f57">ARCHITECTURE</p>
-        <div class="project-arch mb-10" style="font-size:0.875rem;line-height:2">${p.arch.join('  →  ')}</div>
+        <p class="font-mono text-[11px] tracking-[.15em] mb-3 text-inkfaint">ARCHITECTURE</p>
+        <div class="project-arch mb-10 text-sm leading-loose">${p.arch.join('  →  ')}</div>
 
         ${p.features.length ? `
-        <p class="font-mono text-[11px] tracking-[.15em] mb-3" style="color:#4f4f57">KEY FEATURES</p>
-        <ul class="leading-relaxed mb-10 max-w-2xl" style="color:#8c8c94;display:flex;flex-direction:column;gap:0.5rem">
+        <p class="font-mono text-[11px] tracking-[.15em] mb-3 text-inkfaint">KEY FEATURES</p>
+        <ul class="leading-relaxed mb-10 max-w-2xl text-inkdim flex flex-col gap-2">
           ${p.features.map(f => `<li>— ${f}</li>`).join('')}
         </ul>` : ''}
 
-        <p class="font-mono text-[11px] tracking-[.15em] mb-3" style="color:#4f4f57">TECH STACK</p>
-        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:3rem">
+        <p class="font-mono text-[11px] tracking-[.15em] mb-3 text-inkfaint">TECH STACK</p>
+        <div class="flex flex-wrap gap-2 mb-12">
           ${p.stack.map(s => `<span class="skill-chip">${s}</span>`).join('')}
         </div>
 
-        <div style="display:flex;flex-wrap:wrap;gap:1rem">
-          ${p.github ? `<a href="${p.github}" target="_blank" rel="noopener" class="btn-line" data-cursor="OPEN">GITHUB</a>` : `<span class="btn-line" style="opacity:.5;cursor:default">${p.githubLabel || 'SOURCE NOT PUBLIC'}</span>`}
+        <div class="flex flex-wrap gap-4">
+          ${p.github ? `<a href="${p.github}" target="_blank" rel="noopener" class="btn-line" data-cursor="OPEN">GITHUB</a>` : `<span class="btn-line opacity-50 cursor-default">${p.githubLabel || 'SOURCE NOT PUBLIC'}</span>`}
           ${p.demo ? `<a href="${p.demo}" target="_blank" rel="noopener" class="btn-line" data-cursor="OPEN">LIVE DEMO</a>` : ''}
         </div>
       `;
@@ -528,7 +476,6 @@ function initNavigation(lenis){
       else { panel.classList.remove('hidden'); panel.classList.add('flex'); document.body.style.overflow = 'hidden'; }
     });
   }
-  // ✕ CLOSE button inside the drawer
   const closeBtn = document.getElementById('mobile-nav-close');
   if (closeBtn) closeBtn.addEventListener('click', closeMobileNav);
 
