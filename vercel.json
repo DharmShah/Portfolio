@@ -1,0 +1,26 @@
+{
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/assets/photos/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Content-Type", "value": "image/png" }
+      ]
+    },
+    {
+      "source": "/assets/(.*\\.pdf)",
+      "headers": [
+        { "key": "Content-Type", "value": "application/pdf" },
+        { "key": "Content-Disposition", "value": "attachment" }
+      ]
+    },
+    {
+      "source": "/assets/(.*\\.png)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Content-Type", "value": "image/png" }
+      ]
+    }
+  ]
+}
