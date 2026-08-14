@@ -113,13 +113,9 @@ function initFaceSequence(){
   const hudLabel = document.getElementById('hud-label');
   const sweep = document.getElementById('scan-sweep');
 
-  const FRAME_FILES = [
-    'assets/cartoon-front.jpg',
-    'assets/cartoon-back.jpg',
-    'assets/transition-profile.jpg',
-    'assets/real-office.jpg',
-    'assets/real-headshot-cutout.png'
-  ];
+  const FRAME_FILES = Array.from({ length: 240 }, (_, i) =>
+    'assets/ezgif-frame-' + String(i + 1).padStart(3, '0') + '.png'
+  );
   const TOTAL_FRAMES = FRAME_FILES.length;
   const images = new Array(TOTAL_FRAMES);
   let loadedCount = 0;
